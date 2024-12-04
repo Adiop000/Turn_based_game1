@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Turn-Based Game</title>
+</head>
+<body>
+    <h1>Turn-Based Game</h1>
+
+    <p>Your Health: {{ user_health }}</p>
+    <p>Computer's Health: {{ computer_health }}</p>
+
+    {% if result_message %}
+    <p>{{ result_message }}</p>
+    {% endif %}
+    {% if computer_message %}
+    <p>{{ computer_message }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="user_health" value="{{ user_health }}">
+        <input type="hidden" name="computer_health" value="{{ computer_health }}">
+        <label for="user_move">Choose your move:</label>
+        <select name="user_move" id="user_move">
+            <option value="1">Fireball</option>
+            <option value="2">Conflagrate</option>
+            <option value="3">Renew</option>
+        </select>
+        <button type="submit">Attack</button>
+    </form>
+</body>
+</html>
