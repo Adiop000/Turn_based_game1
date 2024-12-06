@@ -1,70 +1,65 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 import random
-import time
 
-# Game variables
-AVAILABLE_MOVES = {
-    1: {"name": "Fireball", "type": "damage", "damage_range": (18, 25)},
-    2: {"name": "Conflagrate", "type": "damage", "damage_range": (10, 35)},
-    3: {"name": "Renew", "type": "heal", "heal_amount": (18, 25)},
-}
+def game_view(request):
+    # Initialize default values for the game state
+    user_health = 100
+    opponent_health = 100
+    round_number = 1
+    log = []  # Log for actions
+    result = ""
 
+    # If this is a POST request, retrieve the game state from the form
+    if request.method == "POST":
+        user_health = int(request.POST.get('user_health'))
+        opponent_health = int(request.POST.get('opponent_health'))
+        round_number = int(request.POST.get('round_number'))
+        log = eval(request.POST.get('log'))  # Convert log back to a Python list
 
-def index(request):
-    """Landing page for the game."""
-    return render(request, 'TBG/game.html')
+        # Get the user's move
+        user_move = int(request.POST.get('user_move'))
 
+        # Define available moves
+        available_moves = {
+            1: {"name": "Fireball", "type": "damage", "damage_range": (18, 25)},
+            2: {"name": "Conflagrate", "type": "damage", "damage_range": (5, 50)},
+            3: {"name": "Psychic Strike", "type": "damage", "damage_range": (10, 20)},
+        }
 
-def play_game(request):
-    """Main game logic."""
-    if request.method == 'POST':
-        # Retrieve health values and user move from POST data
-        user_health = int(request.POST['user_health'])
-        computer_health = int(request.POST['computer_health'])
-        user_move = int(request.POST['user_move'])
-
-        # Process user move
-        move = AVAILABLE_MOVES[user_move]
+        # User's turn
+        move = available_moves[user_move]
         if move["type"] == "damage":
             damage = random.randint(*move["damage_range"])
-            computer_health -= damage
-            result_message = f"You used {move['name']}! It dealt {damage} damage."
-        elif move["type"] == "heal":
-            heal = random.randint(*move["heal_amount"])
-            user_health += heal
-            result_message = f"You used {move['name']}! You healed {heal} health."
+            opponent_health -= damage
+            log.append(f"You used {move['name']} and dealt {damage} damage to the opponent.")
 
-        # Check if computer is defeated
-        if computer_health <= 0:
-            return redirect('game_result')
+        # Opponent's turn (AI logic)
+        if opponent_health > 0:  # Only allow the opponent to attack if they are still alive
+            opponent_move = random.choice(list(available_moves.keys()))
+            move = available_moves[opponent_move]
+            if move["type"] == "damage":
+                damage = random.randint(*move["damage_range"])
+                user_health -= damage
+                log.append(f"The opponent used {move['name']} and dealt {damage} damage to you.")
 
-        # Computer's turn
-        computer_move = random.choice(list(AVAILABLE_MOVES.keys()))
-        move = AVAILABLE_MOVES[computer_move]
-        if move["type"] == "damage":
-            damage = random.randint(*move["damage_range"])
-            user_health -= damage
-            computer_message = f"The computer used {move['name']}! It dealt {damage} damage."
-        elif move["type"] == "heal":
-            heal = random.randint(*move["heal_amount"])
-            computer_health += heal
-            computer_message = f"The computer used {move['name']}! It healed {heal} health."
+        # Increment the round number
+        round_number += 1
 
-        # Render the updated game state
-        return render(request, 'TBG/game.html', {
-            'user_health': user_health,
-            'computer_health': computer_health,
-            'result_message': result_message,
-            'computer_message': computer_message,
-        })
+    # Check for game over
+    game_over = False
+    if user_health <= 0:
+        game_over = True
+        result = "You have been defeated!"
+    elif opponent_health <= 0:
+        game_over = True
+        result = "You won!"
 
-    # Initial health values
+    # Pass all necessary information to the template
     return render(request, 'TBG/game.html', {
-        'user_health': 100,
-        'computer_health': 100,
+        'user_health': user_health,
+        'opponent_health': opponent_health,
+        'log': log,
+        'game_over': game_over,
+        'result': result,
+        'round_number': round_number,
     })
-
-
-def result(request):
-    """Game result page."""
-    return render(request, 'TBG/result.html')

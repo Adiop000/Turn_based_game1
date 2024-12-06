@@ -1,46 +1,26 @@
-"""
-Django settings for Turn_based_game project.
-
-Based on by 'django-admin startproject' using Django 2.1.2.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/2.1/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/2.1/ref/settings/
-"""
-
 import os
-import posixpath
+from pathlib import Path
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Base directory of the project
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+# Security settings
+SECRET_KEY = 'your-secret-key-here'  # Replace with your secure key
+DEBUG = True  # Set to False in production
+ALLOWED_HOSTS = []  # Add your domain or IP here in production
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7d689b95-f2b3-40d1-a89a-3b16eddde42c'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-# Application references
-# https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
+# Installed apps, including your custom app 'TBG'
 INSTALLED_APPS = [
-    # Add your apps here to enable them
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'TBG',  # Your custom app
 ]
 
-# Middleware framework
-# https://docs.djangoproject.com/en/2.1/topics/http/middleware/
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -51,15 +31,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'Turn_based_game.urls'
+# Root URL configuration
+ROOT_URLCONF = 'Turn_based_game.urls'  # Replace with your project name
 
-# Template configuration
-# https://docs.djangoproject.com/en/2.1/topics/templates/
+# Templates configuration
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Global templates directory
+        'APP_DIRS': True,  # Enable automatic discovery of templates in app directories
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -71,19 +51,18 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Turn_based_game.wsgi.application'
+# WSGI application
+WSGI_APPLICATION = 'Turn_based_game.wsgi.application'  # Replace with your project name
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+# Database configuration (SQLite by default)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -100,14 +79,19 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/2.1/topics/i18n/
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
+# Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Global static directory
+
+# Media files (optional, for user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
